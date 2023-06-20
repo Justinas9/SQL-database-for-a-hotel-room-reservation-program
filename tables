@@ -1,0 +1,90 @@
+DROP DATABASE IF EXISTS hotelis1;
+CREATE DATABASE IF NOT EXISTS hotelis1 CHARSET utf8mb4 collate utf8mb4_unicode_ci;
+USE hotelis1;
+
+DROP TABLE IF EXISTS asmuo;
+CREATE TABLE asmuo (
+	id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    vardas VARCHAR(50) NOT NULL,
+    pavarde VARCHAR(50) NOT NULL,
+    ak BIGINT UNSIGNED UNIQUE NOT NULL UNIQUE,
+    el_pastas VARCHAR(50) UNIQUE,
+    telefono_nr VARCHAR(50) UNIQUE
+);
+DROP TABLE IF EXISTS pareigos;
+CREATE TABLE pareigos(
+	id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    pavadinimas VARCHAR(255) NOT NULL UNIQUE,
+    aprasymas TEXT
+);
+
+DROP TABLE IF EXISTS viesbutis;
+CREATE TABLE viesbutis(
+	id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    pavadinimas VARCHAR(255) NOT NULL,
+    adresas VARCHAR(255)
+);
+DROP TABLE IF EXISTS darbuotojas;
+CREATE TABLE darbuotojas (
+	id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    pareigos_id INT UNSIGNED NOT NULL,
+    viesbucio_id INT UNSIGNED NOT NULL,
+    laikas_nuo DATE NOT NULL,
+    laikas_iki varchar(50) default 'Dabartinis',
+    constraint FK_darbuotojas_asmuo FOREIGN KEY (id) REFERENCES asmuo(id),
+    constraint FK_darbuoto_pareigos FOREIGN KEY (pareigos_id) REFERENCES pareigos(id),
+    constraint FK_darbuoto_viesbutis FOREIGN KEY (viesbucio_id) REFERENCES viesbutis(id)
+);
+
+DROP TABLE IF EXISTS restoranas;
+CREATE TABLE restoranas(
+	viesbucio_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    darbo_laikas TEXT NOT NULL,
+    constraint FK_viesbucio_restoranas FOREIGN KEY (viesbucio_id) REFERENCES viesbutis(id)
+);
+
+DROP TABLE IF EXISTS automobiliu_aikstele;
+CREATE TABLE automobiliu_aikstele(
+	viesbucio_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    kiekis INT UNSIGNED NOT NULL,
+    constraint FK_viesbucio_automobiliu_aikstele FOREIGN KEY (viesbucio_id) REFERENCES viesbutis(id)
+);
+
+
+DROP TABLE IF EXISTS kambario_tipas;
+CREATE TABLE kambario_tipas(
+	id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    pavadinimas VARCHAR(255) NOT NULL,
+    kambario_kaina TINYINT UNSIGNED NOT NULL,
+    sezonas VARCHAR(100) NOT NULL
+);
+DROP TABLE IF EXISTS kambarys;
+CREATE TABLE kambarys(
+	kambario_numeris INT UNSIGNED,
+    viesbucio_id INT UNSIGNED NOT NULL,
+    kambario_tipo_id INT UNSIGNED NOT NULL,
+    constraint PK_kambarys PRIMARY KEY (kambario_numeris, viesbucio_id),
+    constraint FK_viesbucio_kambarys FOREIGN KEY (viesbucio_id) REFERENCES viesbutis(id),
+    constraint FK_kambario_tipas FOREIGN KEY (kambario_tipo_id) REFERENCES kambario_tipas(id)
+);
+DROP TABLE IF EXISTS rezervacija;
+CREATE TABLE rezervacija(
+	id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    asmens_id INT UNSIGNED NOT NULL,
+    kambario_numeris INT UNSIGNED NOT NULL,
+    viesbucio_id INT UNSIGNED NOT NULL,
+    apsistojimas_nuo DATETIME NOT NULL,
+    apsistojimas_iki DATETIME NOT NULL,
+    automobilio_valstybiniai_nr VARCHAR(20),
+    busena bool NOT NULL,
+    constraint FK_asmens_rezervacija FOREIGN KEY (asmens_id) REFERENCES asmuo(id),
+    constraint FK_rezervacija_viesbucio_id FOREIGN KEY (kambario_numeris, viesbucio_id) REFERENCES kambarys(kambario_numeris, viesbucio_id)
+    
+);
+DROP TABLE IF EXISTS atsiliepimas;
+CREATE TABLE atsiliepimas(
+	id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    ivertinimas TINYINT UNSIGNED NOT NULL,
+    komentaras TEXT,
+    constraint FK_rezervacijos_atsiliepimas FOREIGN KEY (id) REFERENCES rezervacija(id)
+);
