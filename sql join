@@ -1,0 +1,64 @@
+SELECT asmuo.id,
+asmuo.vardas AS 'Vardas', 
+asmuo.pavarde AS 'Pavardė', 
+asmuo.ak AS 'Asmens kodas', 
+asmuo.el_pastas AS 'Elektroninis Paštas', 
+asmuo.telefono_nr AS 'Telefono Numeris',
+rezervacija.kambario_numeris AS 'Kambario Numeris', 
+viesbutis.pavadinimas AS 'Viešbučio Pavadinimas', 
+rezervacija.apsistojimas_nuo AS 'Apsistojimas nuo',
+rezervacija.apsistojimas_iki AS 'Apsistojimas iki', 
+rezervacija.automobilio_valstybiniai_nr AS 'Automobilio Valstybiniai Numeriai',
+atsiliepimas.ivertinimas AS 'Įvertinimas', 
+atsiliepimas.komentaras AS 'Komentaras'
+FROM asmuo
+INNER JOIN rezervacija ON asmuo.id = rezervacija.asmens_id
+INNER JOIN viesbutis ON viesbutis.id = rezervacija.viesbucio_id
+LEFT JOIN atsiliepimas ON rezervacija.id = atsiliepimas.id;
+
+
+#Sukuria lentele, kurioje patalpinami "Sidabrines kopos" viesbucio visi turimi kambariai.
+SELECT viesbutis.pavadinimas AS 'Viešbučio Pavadinimas',
+kambarys.kambario_numeris AS 'Kambario Numeris', 
+kambarys.viesbucio_id AS 'Viešbučio ID',
+kambario_tipas.pavadinimas AS'Kambario Tipas'
+FROM viesbutis
+JOIN kambarys ON kambarys.viesbucio_id = viesbutis.id
+JOIN kambario_tipas ON kambarys.kambario_tipo_id=kambario_tipas.id
+WHERE viesbutis.id=1;
+
+#Sukuria lentele, kurioje patalpinami "Bronzines kopos" viesbucio visi turimi kambariai.
+SELECT viesbutis.pavadinimas AS 'Viešbučio Pavadinimas',
+kambarys.kambario_numeris AS 'Kambario Numeris', 
+kambarys.viesbucio_id AS 'Viešbučio ID',
+kambario_tipas.pavadinimas AS'Kambario Tipas'
+FROM viesbutis
+JOIN kambarys ON kambarys.viesbucio_id = viesbutis.id
+JOIN kambario_tipas ON kambarys.kambario_tipo_id=kambario_tipas.id
+WHERE viesbutis.id=2;
+
+#Sukuria lentele, kurioje patalpinama viesbuciu restoranu ir stovejimo aiksteliu duomenys.
+SELECT viesbutis.pavadinimas AS'Viešbučio Pavadinimas',
+viesbutis.adresas AS 'Viešbučio Adresas', 
+automobiliu_aikstele.kiekis AS 'Automobilių Aikštelės Vietų Skaičius', 
+restoranas.darbo_laikas AS 'Restorano Darbo Laikas'
+FROM viesbutis
+LEFT JOIN restoranas ON restoranas.viesbucio_id=viesbutis.id
+LEFT JOIN automobiliu_aikstele ON viesbutis.id=automobiliu_aikstele.viesbucio_id;
+
+#Sukuria lentele, kurioje patalpinami atsiliepimai, kuriu iverciai lygus arba mazesni nei 5
+SELECT asmuo.vardas AS 'Vardas', 
+asmuo.pavarde AS 'Pavardė', 
+rezervacija.asmens_id AS 'Asmens ID', 
+rezervacija.apsistojimas_nuo AS 'Apsistojo Nuo', 
+rezervacija.apsistojimas_iki AS 'Apsistojo Iki', 
+atsiliepimas.id AS 'Atsiliepimo ID', 
+atsiliepimas.ivertinimas AS 'Įvertinimas', 
+atsiliepimas.komentaras AS 'Komentaras', 
+viesbutis.pavadinimas AS 'Viešbučio Pavadinimas'
+FROM atsiliepimas
+JOIN rezervacija ON rezervacija.id=atsiliepimas.id
+JOIN viesbutis ON viesbutis.id=rezervacija.viesbucio_id
+JOIN asmuo ON rezervacija.asmens_id=asmuo.id
+WHERE atsiliepimas.ivertinimas <=5
+ORDER BY rezervacija.apsistojimas_nuo DESC;
